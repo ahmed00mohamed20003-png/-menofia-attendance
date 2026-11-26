@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <script src="firebase-config.js"></script>
+<script>window.DP=null;window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();window.DP=e})</script>
+<link rel="apple-touch-icon" href="icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.json"><meta name="theme-color" content="#0b6b43">
 <title>تسجيل الحضور</title>
 <style>
@@ -46,6 +48,7 @@ button.p{background:linear-gradient(135deg,#0b6b43,#2faa6c);color:#fff;box-shado
 .bar{position:fixed;inset:auto 0 0 0;z-index:5;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));background:var(--card);border-top:1px solid var(--bd);box-shadow:0 -6px 18px rgba(0,0,0,.14);display:flex;gap:10px;align-items:center;justify-content:space-between}
 .cnt{font-weight:800;color:var(--ac);font-size:18px}
 #ed,#de,#rep,#sm,#jx{display:none}
+.ibtn{margin-top:8px;border:0;padding:6px 18px;border-radius:20px;background:linear-gradient(90deg,#e3b341,#f6dc86);color:#3b2d00;font-weight:800;font-size:13px;cursor:pointer}
 .sy{display:inline-block;margin-top:8px;padding:3px 12px;border-radius:20px;background:rgba(255,255,255,.18);font-size:12px}#jx p{font-size:12px;color:var(--mu);margin:0 0 8px}#jx input[type=file]{margin-top:8px}
 .tw{overflow-x:auto}.tb{width:100%;border-collapse:collapse;font-size:13px}.tb th,.tb td{padding:7px 5px;border-bottom:1px solid var(--bd);text-align:center;white-space:nowrap}.tb td:first-child,.tb th:first-child{text-align:right;white-space:normal}.tb th{color:var(--ac)}.low{color:#e5574b;font-weight:800}.ok{color:var(--ac);font-weight:800}.ses{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--bd);font-size:13px}.ses small{color:var(--mu)}.ses button{padding:6px 12px;color:#e5574b;background:transparent;border:1px solid #e5574b}
 #mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9;align-items:center;justify-content:center}
@@ -66,7 +69,7 @@ button.p{background:linear-gradient(135deg,#0b6b43,#2faa6c);color:#fff;box-shado
 <div class="wrap">
  <header class="hero"><div class="orb o1"></div><div class="orb o2"></div>
   <div class="lo"><img id="hu" alt=""><img id="hf" class="big" alt=""><img id="hd" alt=""></div>
-  <h1>جامعة المنوفية · كلية الزراعة</h1><p>قسم الأراضي وعلوم المياه</p><span class="t">✦ نظام تسجيل الحضور ✦</span><br><span class="sy" id="sy"></span>
+  <h1>جامعة المنوفية · كلية الزراعة</h1><p>قسم الأراضي وعلوم المياه</p><span class="t">✦ نظام تسجيل الحضور ✦</span><br><span class="sy" id="sy"></span><br><button class="ibtn" id="ib">📲 تثبيت التطبيق</button>
  </header>
  <div class="stats"><div class="st g"><b id="sp">0</b><span>حاضر</span></div><div class="st r"><b id="sa">0</b><span>غائب</span></div><div class="st y"><b id="sr">0%</b><span>نسبة الحضور</span></div></div>
  <section class="card"><h3>📋 بيانات الجلسة</h3><div class="grid">
@@ -177,37 +180,46 @@ $("ss").onclick=function(){var p=S.names.filter(function(n){return S.on[n]});if(
  ask("حفظ الجلسة بـ "+p.length+" حاضر؟\nهيتصفّر التحديد للجلسة الجاية.",function(){var m=head();S.hist.push({id:Date.now(),d:m.d,tm:m.tm,t:m.t,sub:m.sub,grp:m.grp,doc:m.doc,p:p});S.on={};save();render();$("sm").style.display="block";smRender();$("sm").scrollIntoView()})};
 $("sp2").onclick=function(){var m=head(),lr='<div class="lr">'+["u","f","d"].map(function(k){return S.logos[k]?'<img src="'+S.logos[k]+'">':'<span></span>'}).join("")+'</div>';
  $("rep").innerHTML=lr+'<h2>جامعة المنوفية – كلية الزراعة<br>'+m.dept+'<br>مجموع الحضور</h2><p>المادة: <b>'+($("fs").value||"كل المواد")+'</b> · تاريخ الطباعة: <b>'+today+'</b></p>'+$("tbs").innerHTML+'<div class="sg"><span>توقيع الدكتور: ........................</span><span>رئيس القسم: <b>'+m.head+'</b></span></div>';SUMP=true;window.print()};
-var FB=window.FB_CONFIG||null; /* للمزامنة المشتركة: ضع هنا إعدادات Firebase مثل {apiKey:"...",authDomain:"...",projectId:"...",appId:"..."} */
-var db=null,cfgLast="",cfgT=0,pend=false;
-function nid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
-function stat(){var t;if(!FB)t="💾 حفظ محلي على هذا الجهاز";else if(!navigator.onLine)t="📴 أوفلاين — هيتزامن لما النت يرجع";else t=pend?"⏳ جاري المزامنة":"🟢 متزامن مع الجميع";$("sy").textContent=t}
+var BUILD="v4";
+var DEFFB={apiKey:"AIzaSyCG-LJ9sNSPDusu7LAwrIUxWsD9GexmtHY",authDomain:"menofia-attendance.firebaseapp.com",projectId:"menofia-attendance",storageBucket:"menofia-attendance.firebasestorage.app",messagingSenderId:"77473644097"};
+var FB=window.FB_CONFIG||DEFFB;
+var db=null,cfgLast="",cfgT=0,pend=false,fromC=true,fbState="init",fbErr="",LOG=[];
+function lg(m){LOG.push(m);if(LOG.length>60)LOG.shift()}
+function hint(c){return({"permission-denied":"القواعد مش منشورة أو بتمنع: Firestore > Rules > الصق firestore.rules واضغط Publish","unavailable":"مفيش اتصال بالسيرفر (نت أو الشبكة بتحجب Firestore)","not-found":"قاعدة البيانات لسه ما اتعملتش: Firestore > Create database","failed-precondition":"قاعدة البيانات لسه ما اتعملتش: Firestore > Create database","unauthenticated":"الـ apiKey غلط: انسخه من Project settings > Your apps"})[c]||""}
+function stat(){var t;if(!FB)t="💾 حفظ محلي على هذا الجهاز";else if(fbState==="err")t="⚠️ فشل الاتصال: "+fbErr;else if(!db)t="⏳ جاري تحميل Firebase…";else if(!navigator.onLine)t="📴 أوفلاين — هيتزامن لما النت يرجع";else if(fromC)t="⏳ بيتصل بالسيرفر…";else if(pend)t="⏳ جاري المزامنة";else t="🟢 متزامن مع Firebase";$("sy").textContent=t}
 window.addEventListener("online",stat);window.addEventListener("offline",stat);
+function fail(e,w){fbState="err";fbErr=(e&&e.code)||String((e&&e.message)||e);lg("خطأ في "+w+": "+((e&&e.code)||"")+" — "+((e&&e.message)||e));var x=hint(e&&e.code);if(x)lg("الحل: "+x);stat()}
+function nid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
 function cfgObj(){return{names:S.names,docs:S.docs,head:M.head,dept:M.dept}}
-function pushCfg(){if(!db)return;var j=JSON.stringify(cfgObj());if(j===cfgLast)return;cfgLast=j;db.doc("config/main").set(cfgObj()).catch(function(){})}
+function pushCfg(){if(!db)return;var j=JSON.stringify(cfgObj());if(j===cfgLast)return;cfgLast=j;db.doc("config/main").set(cfgObj()).then(function(){lg("اتحفظت الإعدادات (الأسماء/الدكاترة) ✓")}).catch(function(e){cfgLast="";fail(e,"حفظ الإعدادات")})}
 function save(){try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}if(db){clearTimeout(cfgT);cfgT=setTimeout(pushCfg,800)}}
 function has(id){return S.hist.some(function(x){return String(x.id)===String(id)})}
 function upsert(o){var i=-1;S.hist.forEach(function(h,k){if(String(h.id)===String(o.id))i=k});if(i<0)S.hist.push(o);else S.hist[i]=o}
-function put(o){if(db)db.collection("sessions").doc(String(o.id)).set(o).catch(function(){})}
-function loadJS(u,cb){var s=document.createElement("script");s.src=u;s.onload=cb;s.onerror=stat;document.head.appendChild(s)}
+function put(o){if(!db)return;db.collection("sessions").doc(String(o.id)).set(o).then(function(){lg("اتحفظت جلسة في السحابة ✓")}).catch(function(e){fail(e,"حفظ جلسة")})}
+function dbDel(id){if(!db)return;db.collection("sessions").doc(String(id)).delete().then(function(){lg("اتحذفت جلسة من السحابة ✓")}).catch(function(e){fail(e,"حذف جلسة")})}
+function loadJS(u,cb){var s=document.createElement("script");s.src=u;s.onload=cb;s.onerror=function(){fbState="err";fbErr="تعذّر تحميل مكتبة Firebase";lg(fbErr+": "+u);stat()};document.head.appendChild(s)}
 function initFB(){
  if(FB&&FB.projectId)return go();
  try{fetch("/__/firebase/init.json").then(function(r){return r.ok?r.json():null}).then(function(c){if(c&&c.projectId){FB=c;go()}}).catch(function(){})}catch(e){}
 }
 function go(){
  var B="https://www.gstatic.com/firebasejs/10.12.2/";
+ lg("نسخة التطبيق "+BUILD+" — بدأ تحميل Firebase");
  loadJS(B+"firebase-app-compat.js",function(){loadJS(B+"firebase-firestore-compat.js",function(){
-  try{firebase.initializeApp(FB);db=firebase.firestore();db.enablePersistence({synchronizeTabs:true}).catch(function(){})}catch(e){db=null;stat();return}
+  try{firebase.initializeApp(FB);db=firebase.firestore();try{db.settings({experimentalAutoDetectLongPolling:true,merge:true})}catch(e){}db.enablePersistence({synchronizeTabs:true}).catch(function(e){lg("التخزين الأوفلاين غير متاح: "+e.code)})}catch(e){db=null;fail(e,"التهيئة");return}
+  lg("اتهيّأ الاتصال بمشروع "+FB.projectId);stat();
   var first=true;
   db.collection("sessions").onSnapshot({includeMetadataChanges:true},function(sn){
-   pend=sn.metadata.hasPendingWrites;
+   pend=sn.metadata.hasPendingWrites;fromC=sn.metadata.fromCache;
+   if(!fromC&&fbState==="err"&&fbErr.indexOf("Firebase")<0)fbState="ok";
    if(first){first=false;var ids={};sn.forEach(function(d){ids[d.id]=1});S.hist.forEach(function(h){h.id=String(h.id);if(!ids[h.id])put(h)})}
    sn.docChanges().forEach(function(ch){var o=ch.doc.data();o.id=ch.doc.id;if(ch.type==="removed")S.hist=S.hist.filter(function(h){return String(h.id)!==o.id});else upsert(o)});
-   save();smRender();stat()},stat);
+   save();smRender();stat();if(!fromC)lg("متزامن — جلسات في السحابة: "+sn.size)},function(e){fail(e,"قراءة الجلسات")});
   db.doc("config/main").onSnapshot(function(sn){
-   if(sn.exists){var c=sn.data();if(c.names&&c.names.length)S.names=c.names;if(c.docs)S.docs=c.docs;if(c.head)M.head=c.head;if(c.dept)M.dept=c.dept;cfgLast=JSON.stringify(cfgObj());fillDocs();$("head").value=M.head;$("dept").value=M.dept;save();render()}else pushCfg()});
+   if(sn.exists){var c=sn.data();if(c.names&&c.names.length)S.names=c.names;if(c.docs)S.docs=c.docs;if(c.head)M.head=c.head;if(c.dept)M.dept=c.dept;cfgLast=JSON.stringify(cfgObj());fillDocs();$("head").value=M.head;$("dept").value=M.dept;save();render()}else pushCfg()},function(e){fail(e,"قراءة الإعدادات")});
  })})
 }
-$("sl").onclick=function(e){var b=e.target.closest("[data-del]");if(!b)return;var id=b.dataset.del;ask("تأكيد حذف الجلسة دي؟",function(){S.hist=S.hist.filter(function(x){return String(x.id)!==id});if(db)db.collection("sessions").doc(id).delete().catch(function(){});save();smRender()})};
+$("sl").onclick=function(e){var b=e.target.closest("[data-del]");if(!b)return;var id=b.dataset.del;ask("تأكيد حذف الجلسة دي؟",function(){S.hist=S.hist.filter(function(x){return String(x.id)!==id});dbDel(id);save();smRender()})};
 $("ss").onclick=function(){var p=S.names.filter(function(n){return S.on[n]});if(!p.length){ask("علّم على الحاضرين الأول.",function(){});return}
  ask("حفظ الجلسة بـ "+p.length+" حاضر؟\nهيتصفّر التحديد للجلسة الجاية.",function(){var m=head(),o={id:nid(),d:m.d,tm:m.tm,t:m.t,sub:m.sub,grp:m.grp,doc:m.doc,p:p};S.hist.push(o);put(o);S.on={};save();render();$("sm").style.display="block";smRender();$("sm").scrollIntoView()})};
 $("jxb").onclick=function(){var s=$("jx");s.style.display=s.style.display==="block"?"none":"block";s.scrollIntoView()};
@@ -216,6 +228,11 @@ $("jcp").onclick=function(){try{navigator.clipboard.writeText($("jt").value).the
 $("jf").onchange=function(){var f=this.files[0];if(!f)return;var r=new FileReader();r.onload=function(){$("jt").value=r.result};r.readAsText(f)};
 $("jim").onclick=function(){var o;try{o=JSON.parse($("jt").value)}catch(e){ask("المحتوى مش ملف صالح.",function(){});return}
  ask("دمج "+(o.hist||[]).length+" جلسة مع بياناتك؟",function(){var n0=S.hist.length;(o.hist||[]).forEach(function(h){h.id=String(h.id);if(!has(h.id)){S.hist.push(h);put(h)}});(o.names||[]).forEach(function(n){if(S.names.indexOf(n)<0)S.names.push(n)});(o.docs||[]).forEach(function(d){if(S.docs.indexOf(d)<0)S.docs.push(d)});save();fillDocs();render();smRender();ask("تم دمج "+(S.hist.length-n0)+" جلسة جديدة.",function(){})})};
+window.addEventListener("appinstalled",function(){window.DP=null;$("ib").style.display="none"});
+if(window.matchMedia("(display-mode: standalone)").matches||navigator.standalone)$("ib").style.display="none";
+$("ib").onclick=function(){if(window.DP){window.DP.prompt();window.DP.userChoice.then(function(){window.DP=null});return}
+ var ios=/iphone|ipad|ipod/i.test(navigator.userAgent);
+ ask(ios?"للتثبيت على الآيفون:\nاضغط زر المشاركة ⬆️ في سفاري\nثم «إضافة إلى الشاشة الرئيسية»":"للتثبيت:\nافتح قائمة المتصفح ⋮\nثم «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية»\n(افتح الرابط في كروم مش من جوه واتساب)",function(){})};
 stat();initFB();
 render();
 </script>

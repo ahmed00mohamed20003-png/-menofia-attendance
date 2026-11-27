@@ -69,7 +69,7 @@ button.p{background:linear-gradient(135deg,#0b6b43,#2faa6c);color:#fff;box-shado
 </style>
 </head>
 <body>
-<div id="lk"><div class="lkc"><img id="lkl" alt=""><h2>نظام تسجيل الحضور</h2><p>قسم الأراضي وعلوم المياه — للدكاترة فقط</p>
+<div id="lk"><div class="lkc"><img id="lkl" alt=""><h2>نظام تسجيل الحضور</h2><p>قسم الأراضي وعلوم المياه — للدكاترة والمشرفين</p>
 <div id="lkw">⏳ جاري التحقق…</div>
 <div id="lke" style="display:none"><p>تعذّر تحميل نظام الدخول. محتاج اتصال بالنت أول مرة.</p><button class="p" id="lkt">إعادة المحاولة</button></div>
 <div id="lkf" style="display:none"><input id="lki" type="email" placeholder="الإيميل" autocomplete="username" dir="ltr"><input id="lkp" type="password" placeholder="الباسوورد" autocomplete="current-password" dir="ltr"><div id="lkm"></div><button class="p" id="lkb">دخول</button><button id="lkr">نسيت الباسوورد؟</button></div></div></div>
@@ -92,9 +92,9 @@ button.p{background:linear-gradient(135deg,#0b6b43,#2faa6c);color:#fff;box-shado
  <div id="list"></div>
  <div class="card" id="ed"><label>الأسماء (اسم في كل سطر)</label><textarea id="ta" rows="10"></textarea><div class="row"><button class="p" id="sv">حفظ الأسماء</button><button id="cl">إلغاء</button></div></div>
  <div class="card" id="de"><label>أسماء الدكاترة (اسم في كل سطر)</label><textarea id="dta" rows="8"></textarea><div class="row"><button class="p" id="dsv">حفظ</button><button id="dcl">إلغاء</button></div></div>
- <section class="card"><h3>🛠 أدوات</h3><div class="row" style="margin-top:0"><button id="all">الكل حاضر</button><button id="clr">مسح التحديد</button><button id="edb">تعديل الأسماء</button><button id="deb">تعديل الدكاترة</button><button id="cp">نسخ كنص</button><button id="smb">📊 المجموع</button><button id="jxb">🔄 تصدير / دمج JSON</button><button id="lo">🚪 تسجيل خروج</button></div></section>
+ <section class="card"><h3>🛠 أدوات</h3><div class="row" style="margin-top:0"><button id="all">الكل حاضر</button><button id="clr">مسح التحديد</button><button id="edb">تعديل الأسماء</button><button id="deb">تعديل الدكاترة</button><button id="cp">نسخ كنص</button><button id="smb">📊 المجموع</button><button id="jxb">🔄 تصدير / دمج JSON</button><button id="csva">⬇ CSV الحضور</button><button id="csvt">⬇ CSV المجموع</button><button id="lo">🚪 تسجيل خروج</button></div></section>
  <section class="card" id="jx"><h3>🔄 نقل ودمج البيانات (JSON)</h3><p>صدّر بياناتك وابعتها لزميلك، وهو يلصقها هنا ويدمجها. الجلسات بتتجمع من غير تكرار.</p><textarea id="jt" rows="6" placeholder="الصق هنا ملف JSON للدمج…"></textarea><div class="row"><button class="p" id="jex">تصدير</button><button id="jcp">نسخ</button><button id="jim">دمج المحتوى</button></div><input type="file" id="jf" accept=".json,application/json"></section>
- <section class="card" id="sm"><h3>📊 مجموع الحضور لكل طالب</h3><label>المادة</label><select id="fs"></select><div class="tw" id="tbs" style="margin-top:10px"></div><div class="row"><button class="p" id="sp2">📄 PDF للمجموع</button></div><h3 style="margin-top:16px">🗓 الجلسات المحفوظة</h3><div id="sl"></div></section>
+ <section class="card" id="sm"><h3>📊 مجموع الحضور لكل طالب</h3><label>المادة</label><select id="fs"></select><div class="tw" id="tbs" style="margin-top:10px"></div><div class="row"><button class="p" id="sp2">📄 PDF للمجموع</button><button id="csvt2">⬇ CSV المجموع</button></div><h3 style="margin-top:16px">🗓 الجلسات المحفوظة</h3><div id="sl"></div></section>
  <div hidden><img id="lp_u" alt=""><img id="lp_f" alt=""><img id="lp_d" alt=""><input type="file" id="lf_u"><input type="file" id="lf_f"><input type="file" id="lf_d"></div>
 </div>
 <div class="bar"><span class="cnt" id="cnt"></span><div class="row" style="margin:0"><button class="p" id="ss">💾 حفظ الجلسة</button><button id="pdf">📄 PDF</button></div></div>
@@ -200,7 +200,7 @@ $("ss").onclick=function(){var p=S.names.filter(function(n){return S.on[n]});if(
  ask("حفظ الجلسة بـ "+p.length+" حاضر؟\nهيتصفّر التحديد للجلسة الجاية.",function(){var m=head();S.hist.push({id:Date.now(),d:m.d,tm:m.tm,t:m.t,sub:m.sub,grp:m.grp,doc:m.doc,p:p});S.on={};save();render();$("sm").style.display="block";smRender();$("sm").scrollIntoView()})};
 $("sp2").onclick=function(){var m=head(),lr='<div class="lr">'+["u","f","d"].map(function(k){return S.logos[k]?'<img src="'+S.logos[k]+'">':'<span></span>'}).join("")+'</div>';
  $("rep").innerHTML=lr+'<h2>جامعة المنوفية – كلية الزراعة<br>'+m.dept+'<br>مجموع الحضور</h2><p>المادة: <b>'+($("fs").value||"كل المواد")+'</b> · تاريخ الطباعة: <b>'+today+'</b></p>'+$("tbs").innerHTML+'<div class="sg"><span>توقيع الدكتور: ........................</span><span>رئيس القسم: <b>'+m.head+'</b></span></div>';SUMP=true;window.print()};
-var BUILD="v6";
+var BUILD="v7";
 var DEFFB={"apiKey": "AIzaSyCG-lJ9sNSPDusu7LAwrrUxWsD9GexmtHY", "authDomain": "menofia-attendance.firebaseapp.com", "projectId": "menofia-attendance", "storageBucket": "menofia-attendance.firebasestorage.app", "messagingSenderId": "77473644097", "appId": "1:77473644097:web:233b41fdbe0f9a26a990c0"};
 var FB=window.FB_CONFIG||DEFFB;
 var db=null,cfgLast="",cfgT=0,pend=false,fromC=true,fbState="init",fbErr="",LOG=[];
@@ -251,7 +251,7 @@ function go2(){
  loadJS(B+"firebase-app-compat.js",function(){loadJS(B+"firebase-auth-compat.js",function(){loadJS(B+"firebase-firestore-compat.js",function(){
   try{var cfg={};for(var q in FB)if(q!=="alts")cfg[q]=FB[q];firebase.initializeApp(cfg);fsdb=firebase.firestore();try{fsdb.settings({experimentalAutoDetectLongPolling:true,merge:true})}catch(e){}fsdb.enablePersistence({synchronizeTabs:true}).catch(function(e){lg("التخزين الأوفلاين غير متاح: "+e.code)});auth=firebase.auth()}catch(e){fail(e,"التهيئة");lk("err");return}
   auth.onAuthStateChanged(function(u){
-   if(u){fbState="init";lk("off");$("lo").textContent="🚪 خروج ("+u.email+")";$("lkp").value="";$("lkb").disabled=false;startSync();stat()}
+   if(u){fbState="init";lk("off");$("lkp").value="";$("lkb").disabled=false;startSync();stat()}
    else{stopSync();lk("form");stat()}
   });
  })})})
@@ -276,6 +276,22 @@ if(window.matchMedia("(display-mode: standalone)").matches||navigator.standalone
 $("ib").onclick=function(){if(window.DP){window.DP.prompt();window.DP.userChoice.then(function(){window.DP=null});return}
  var ios=/iphone|ipad|ipod/i.test(navigator.userAgent);
  ask(ios?"للتثبيت على الآيفون:\nاضغط زر المشاركة ⬆️ في سفاري\nثم «إضافة إلى الشاشة الرئيسية»":"للتثبيت:\nافتح قائمة المتصفح ⋮\nثم «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية»\n(افتح الرابط في كروم مش من جوه واتساب)",function(){})};
+function q(v){v=String(v==null?"":v);return /[",\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
+function row(a){return a.map(q).join(",")}
+function dl(n,t){try{var b=new Blob(["\ufeff"+t],{type:"text/csv;charset=utf-8"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=n;document.body.appendChild(a);a.click();setTimeout(function(){a.remove();URL.revokeObjectURL(a.href)},1000)}catch(e){try{navigator.clipboard.writeText(t)}catch(x){}ask("تعذّر تنزيل الملف، اتنسخ المحتوى — الصقه في Excel.",function(){})}}
+function csvAtt(){var m=head(),st=stats(),L=[row(["القسم",m.dept]),row(["رئيس القسم",m.head]),row(["الدكتور",m.doc]),row(["المادة",m.sub]),row(["النوع",m.t]),row(["المجموعة",m.grp]),row(["التاريخ",m.d]),row(["الوقت",m.tm]),"",row(["م","الاسم","الحالة"])];
+ S.names.forEach(function(n,i){L.push(row([i+1,n,S.on[n]?"حاضر":"غائب"]))});
+ L.push("");L.push(row(["الحاضرون",st[0]]));L.push(row(["الغائبون",st[1]]));L.push(row(["الإجمالي",S.names.length]));
+ dl("attendance-"+m.d+".csv",L.join("\r\n"))}
+function csvTot(){var ss=sess().slice().sort(function(a,b){return(a.d+a.tm)<(b.d+b.tm)?-1:1});
+ if(!ss.length){ask("مفيش جلسات محفوظة لسه.",function(){});return}
+ var m=head(),ts=ss.filter(function(x){return x.t==="سيكشن"}).length,tl=ss.length-ts,
+ L=[row(["القسم",m.dept]),row(["المادة",$("fs").value||"كل المواد"]),row(["تاريخ التصدير",m.d]),"",
+ row(["م","الاسم","حضور سيكشن","إجمالي سيكشن","حضور محاضرة","إجمالي محاضرة","إجمالي الحضور","إجمالي الجلسات","النسبة %"].concat(ss.map(function(x){return x.d+" | "+x.t+" | "+x.sub})))];
+ S.names.forEach(function(n,i){var a=0,b=0,c=ss.map(function(x){var p=x.p.indexOf(n)>=0;if(p){if(x.t==="سيكشن")a++;else b++}return p?"حاضر":"غائب"});
+  L.push(row([i+1,n,a,ts,b,tl,a+b,ss.length,Math.round((a+b)*100/ss.length)].concat(c)))});
+ dl("totals-"+m.d+".csv",L.join("\r\n"))}
+$("csva").onclick=csvAtt;$("csvt").onclick=csvTot;$("csvt2").onclick=csvTot;
 stat();initFB();
 render();
 </script>

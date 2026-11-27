@@ -187,8 +187,8 @@ $("ss").onclick=function(){var p=S.names.filter(function(n){return S.on[n]});if(
  ask("حفظ الجلسة بـ "+p.length+" حاضر؟\nهيتصفّر التحديد للجلسة الجاية.",function(){var m=head();S.hist.push({id:Date.now(),d:m.d,tm:m.tm,t:m.t,sub:m.sub,grp:m.grp,doc:m.doc,p:p});S.on={};save();render();$("sm").style.display="block";smRender();$("sm").scrollIntoView()})};
 $("sp2").onclick=function(){var m=head(),lr='<div class="lr">'+["u","f","d"].map(function(k){return S.logos[k]?'<img src="'+S.logos[k]+'">':'<span></span>'}).join("")+'</div>';
  $("rep").innerHTML=lr+'<h2>جامعة المنوفية – كلية الزراعة<br>'+m.dept+'<br>مجموع الحضور</h2><p>المادة: <b>'+($("fs").value||"كل المواد")+'</b> · تاريخ الطباعة: <b>'+today+'</b></p>'+$("tbs").innerHTML+'<div class="sg"><span>توقيع الدكتور: ........................</span><span>رئيس القسم: <b>'+m.head+'</b></span></div>';SUMP=true;window.print()};
-var BUILD="v4";
-var DEFFB={apiKey:"AIzaSyCG-LJ9sNSPDusu7LAwrIUxWsD9GexmtHY",authDomain:"menofia-attendance.firebaseapp.com",projectId:"menofia-attendance",storageBucket:"menofia-attendance.firebasestorage.app",messagingSenderId:"77473644097"};
+var BUILD="v5";
+var DEFFB={"apiKey": "AIzaSyCG-lJ9sNSPDusu7LAwrrUxWsD9GexmtHY", "authDomain": "menofia-attendance.firebaseapp.com", "projectId": "menofia-attendance", "storageBucket": "menofia-attendance.firebasestorage.app", "messagingSenderId": "77473644097", "appId": "1:77473644097:web:233b41fdbe0f9a26a990c0"};
 var FB=window.FB_CONFIG||DEFFB;
 var db=null,cfgLast="",cfgT=0,pend=false,fromC=true,fbState="init",fbErr="",LOG=[];
 function lg(m){LOG.push(m);if(LOG.length>60)LOG.shift()}
@@ -224,11 +224,19 @@ function startSync(){
  u2=db.doc("config/main").onSnapshot(function(sn){
   if(sn.exists){var c=sn.data();if(c.names&&c.names.length)S.names=c.names;if(c.docs)S.docs=c.docs;if(c.head)M.head=c.head;if(c.dept)M.dept=c.dept;cfgLast=JSON.stringify(cfgObj());fillDocs();$("head").value=M.head;$("dept").value=M.dept;save();render()}else pushCfg()},function(e){fail(e,"قراءة الإعدادات")});
 }
-function go(){
+function pick(cb){
+ var sv=null;try{sv=localStorage.getItem("fbk")}catch(e){}
+ if(sv){FB.apiKey=sv;cb();return}
+ var c=[FB.apiKey].concat(FB.alts||[]);if(c.length<2){cb();return}
+ var n=0,res=[];
+ c.forEach(function(k,i){fetch("https://identitytoolkit.googleapis.com/v1/projects?key="+encodeURIComponent(k)).then(function(r){res[i]=r.ok}).catch(function(){res[i]=null}).then(function(){n++;if(n===c.length){var j=res.indexOf(true);if(j>=0){FB.apiKey=c[j];try{localStorage.setItem("fbk",c[j])}catch(e){}}cb()}})});
+}
+function go(){pick(go2)}
+function go2(){
  var B="https://www.gstatic.com/firebasejs/10.12.2/";
  lg("نسخة التطبيق "+BUILD);
  loadJS(B+"firebase-app-compat.js",function(){loadJS(B+"firebase-auth-compat.js",function(){loadJS(B+"firebase-firestore-compat.js",function(){
-  try{firebase.initializeApp(FB);fsdb=firebase.firestore();try{fsdb.settings({experimentalAutoDetectLongPolling:true,merge:true})}catch(e){}fsdb.enablePersistence({synchronizeTabs:true}).catch(function(e){lg("التخزين الأوفلاين غير متاح: "+e.code)});auth=firebase.auth()}catch(e){fail(e,"التهيئة");lk("err");return}
+  try{var cfg={};for(var q in FB)if(q!=="alts")cfg[q]=FB[q];firebase.initializeApp(cfg);fsdb=firebase.firestore();try{fsdb.settings({experimentalAutoDetectLongPolling:true,merge:true})}catch(e){}fsdb.enablePersistence({synchronizeTabs:true}).catch(function(e){lg("التخزين الأوفلاين غير متاح: "+e.code)});auth=firebase.auth()}catch(e){fail(e,"التهيئة");lk("err");return}
   auth.onAuthStateChanged(function(u){
    if(u){fbState="init";lk("off");$("lo").textContent="🚪 خروج ("+u.email+")";$("lkp").value="";$("lkb").disabled=false;startSync();stat()}
    else{stopSync();lk("form");stat()}

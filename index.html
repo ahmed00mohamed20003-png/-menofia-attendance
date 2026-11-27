@@ -162,7 +162,20 @@ function build(){
  S.names.forEach(function(n,i){r+='<tr><td class="c">'+(i+1)+'</td><td>'+n+'</td><td class="c">'+(S.on[n]?'✓ حاضر':'غائب')+'</td></tr>'});
  $("rep").innerHTML=r+'</table><p>الحاضرون: <b>'+st[0]+'</b> · الغائبون: <b>'+st[1]+'</b> · الإجمالي: <b>'+S.names.length+'</b></p><div class="sg"><span>توقيع الدكتور: ........................</span><span>رئيس القسم: <b>'+m.head+'</b></span></div>';
 }
-try{if("serviceWorker" in navigator&&location.protocol.indexOf("http")==0)navigator.serviceWorker.register("sw.js")}catch(e){}
+(function(){
+ if(!("serviceWorker" in navigator)||location.protocol.indexOf("http")!=0)return;
+ var had=!!navigator.serviceWorker.controller,rl=false;
+ function go2(){if(rl)return;try{if(Date.now()-(+sessionStorage.getItem("rl")||0)<120000)return;sessionStorage.setItem("rl",Date.now())}catch(e){}rl=true;location.reload()}
+ navigator.serviceWorker.addEventListener("controllerchange",function(){if(had)go2()});
+ navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(function(reg){
+  var up=function(){reg.update().catch(function(){})};
+  setInterval(up,60000);document.addEventListener("visibilitychange",function(){if(!document.hidden)up()});
+ }).catch(function(){});
+ function hs(t){var x=5381,i=t.length;while(i)x=(x*33)^t.charCodeAt(--i);return x>>>0}
+ var base=null;
+ function chk(){fetch(location.pathname,{cache:"no-store"}).then(function(r){return r.ok?r.text():null}).then(function(t){if(t==null)return;var x=hs(t);if(base===null)base=x;else if(x!==base)go2()}).catch(function(){})}
+ chk();setInterval(chk,60000);document.addEventListener("visibilitychange",function(){if(!document.hidden)chk()});
+})();
 function hl(){["u","f","d"].forEach(function(k){if(S.logos[k])$("h"+k).src=S.logos[k]})}
 var _sl=showLogos;showLogos=function(){_sl();hl()};hl();
 function render(){var q=$("q").value.trim(),h="";S.names.forEach(function(n,i){if(q&&n.indexOf(q)<0)return;h+='<div class="item'+(S.on[n]?' on':'')+'" data-i="'+i+'"><span class="av" style="--h:'+(i*47%360)+'">'+n.charAt(0)+'</span><span class="nm">'+n+'<small>#'+(i+1)+'</small></span><span class="b">✓</span></div>'});$("list").innerHTML=h||'<div class="card">لا توجد نتائج</div>';var p=S.names.filter(function(n){return S.on[n]}).length,t=S.names.length;$("sp").textContent=p;$("sa").textContent=t-p;$("sr").textContent=(t?Math.round(p*100/t):0)+"%";$("cnt").textContent=p+" / "+t}
@@ -187,7 +200,7 @@ $("ss").onclick=function(){var p=S.names.filter(function(n){return S.on[n]});if(
  ask("حفظ الجلسة بـ "+p.length+" حاضر؟\nهيتصفّر التحديد للجلسة الجاية.",function(){var m=head();S.hist.push({id:Date.now(),d:m.d,tm:m.tm,t:m.t,sub:m.sub,grp:m.grp,doc:m.doc,p:p});S.on={};save();render();$("sm").style.display="block";smRender();$("sm").scrollIntoView()})};
 $("sp2").onclick=function(){var m=head(),lr='<div class="lr">'+["u","f","d"].map(function(k){return S.logos[k]?'<img src="'+S.logos[k]+'">':'<span></span>'}).join("")+'</div>';
  $("rep").innerHTML=lr+'<h2>جامعة المنوفية – كلية الزراعة<br>'+m.dept+'<br>مجموع الحضور</h2><p>المادة: <b>'+($("fs").value||"كل المواد")+'</b> · تاريخ الطباعة: <b>'+today+'</b></p>'+$("tbs").innerHTML+'<div class="sg"><span>توقيع الدكتور: ........................</span><span>رئيس القسم: <b>'+m.head+'</b></span></div>';SUMP=true;window.print()};
-var BUILD="v5";
+var BUILD="v6";
 var DEFFB={"apiKey": "AIzaSyCG-lJ9sNSPDusu7LAwrrUxWsD9GexmtHY", "authDomain": "menofia-attendance.firebaseapp.com", "projectId": "menofia-attendance", "storageBucket": "menofia-attendance.firebasestorage.app", "messagingSenderId": "77473644097", "appId": "1:77473644097:web:233b41fdbe0f9a26a990c0"};
 var FB=window.FB_CONFIG||DEFFB;
 var db=null,cfgLast="",cfgT=0,pend=false,fromC=true,fbState="init",fbErr="",LOG=[];
